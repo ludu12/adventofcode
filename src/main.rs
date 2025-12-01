@@ -1,31 +1,24 @@
 use std::env;
 
-mod one;
-mod two;
-mod three;
-mod four;
-mod five;
-mod six;
 mod utils;
+mod _2024;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
 
-    let mut num:  u32 = 3;
-    if args.len() > 1 {
-        num = args[1].parse::<u32>().expect("Input should be a number");
+    if args.len() != 3 {
+        println!("Usage: {} <year> <day>", args[0]);
+        return;
     }
 
-    println!("Running Advent of Code 2023. Day {}\n", num.to_string());
+    let year:  u32 = args[1].parse::<u32>().expect("Year input should be a number");;
+    let day:  u32 = args[2].parse::<u32>().expect("Day input should be a number");;
 
-    match num {
-        1 => one::run(),
-        2 => two::run(),
-        3 => three::run(),
-        4 => four::run(),
-        5 => five::run(),
-        6 => six::run(),
-        _ => println!("Invalid advent number! \"{}\"", num),
+    println!("Running Advent of Code {}. Day {}\n", year.to_string(), day.to_string());
+
+    match year {
+        2024 => _2024::run_day(day),
+        _ => println!("Invalid advent year! \"{}\"", year),
     }
 }
 
