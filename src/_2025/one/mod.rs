@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 pub fn run() {
     let input = include_str!("input.txt");
     let part1 = process(input, false);
@@ -9,35 +7,46 @@ pub fn run() {
 }
 
 fn process(input: &str, part2: bool) -> i32 {
-    let count = input.lines().count();
-    let mut left: Vec<i32> = Vec::with_capacity(count);
-    let mut right: Vec<i32> = Vec::with_capacity(count);
+    let mut lands_on_zero = 0;
+    let mut clicks_on_zero = 0;
+    let mut position = 50;
 
     input.lines().for_each(|line| {
-        let mut parts = line.split_whitespace();
-        left.push(parts.next().unwrap().parse().unwrap());
-        right.push(parts.next().unwrap().parse().unwrap());
-    });
+        let mut s = line.chars();
+        let direction = s.next().unwrap();
+        let distance: i32 = s.collect::<String>().parse().unwrap();
 
-    if !part2 {
-        left.sort_unstable();
-        right.sort_unstable();
+        clicks_on_zero += distance / 100;
 
-        left.iter()
-            .zip(right.iter())
-            .map(|(l, r)| (l - r).abs())
-            .sum()
-    } else {
-        let mut counts: HashMap<i32, i32> = HashMap::new();
+        let real_distance = distance % 100;
+        let sign = if direction == 'L' { -1 } else { 1 };
+        let mut new_position = position + sign * real_distance;
 
-        for r in right {
-            *counts.entry(r).or_insert(0) += 1;
+        let remainder = new_position % 100;
+        new_position = if new_position < 0 { 100 + remainder } else { remainder };
+
+        match direction {
+            'L' => {
+                if position < new_position && position != 0 {
+                    clicks_on_zero += 1;
+                }
+            }
+            'R' => {
+                if position > new_position && new_position != 0 {
+                    clicks_on_zero += 1;
+                }
+            }
+            _ => panic!("Invalid direction"),
         }
 
-        left.iter()
-            .map(|l| l * counts.get(l).unwrap_or(&0))
-            .sum()
-    }
+        position = new_position;
+        if position == 0 {
+            clicks_on_zero += 1;
+            lands_on_zero += 1;
+        }
+    });
+
+    if part2 { clicks_on_zero } else {  lands_on_zero }
 }
 
 #[cfg(test)]
@@ -46,23 +55,31 @@ mod test {
 
     #[test]
     fn part1() {
-        let input = "3   4
-4   3
-2   5
-1   3
-3   9
-3   3";
-        assert_eq!(11, process(input, false));
+        let input = "L68
+L30
+R48
+L5
+R60
+L55
+L1
+L99
+R14
+L82";
+        assert_eq!(3, process(input, false));
     }
 
     #[test]
     fn part2() {
-        let input = "3   4
-4   3
-2   5
-1   3
-3   9
-3   3";
-        assert_eq!(31, process(input, true));
+        let input = "L68
+L30
+R48
+L5
+R60
+L55
+L1
+L99
+R14
+L82";
+        assert_eq!(6, process(input, true));
     }
 }
