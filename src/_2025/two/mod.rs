@@ -6,47 +6,60 @@ pub fn run() {
     println!("Part2: {}", part2.to_string());
 }
 
-fn process(input: &str, part2: bool) -> i32 {
-    let mut lands_on_zero = 0;
-    let mut clicks_on_zero = 0;
-    let mut position = 50;
+fn all_elements_equal<T: PartialEq>(vec: &[T]) -> bool {
+    if vec.is_empty() {
+        return false;
+    }
 
-    input.lines().for_each(|line| {
-        let mut s = line.chars();
-        let direction = s.next().unwrap();
-        let distance: i32 = s.collect::<String>().parse().unwrap();
+    let first_element = &vec[0];
+    vec.iter().all(|element| element == first_element)
+}
 
-        clicks_on_zero += distance / 100;
+fn chunks(s: &str, chunk_size: usize) -> Vec<&str> {
+    s.as_bytes()
+        .chunks(chunk_size)
+        .map(std::str::from_utf8)
+        .collect::<Result<Vec<&str>, _>>()
+        .unwrap()
+}
 
-        let real_distance = distance % 100;
-        let sign = if direction == 'L' { -1 } else { 1 };
-        let mut new_position = position + sign * real_distance;
+fn check_repeats(s: &str, split_size: usize) -> bool {
+    if s.len() % split_size != 0 {
+        return false;
+    }
 
-        let remainder = new_position % 100;
-        new_position = if new_position < 0 { 100 + remainder } else { remainder };
+    let chunk_size = s.len() / split_size;
+    let vec = chunks(&s, chunk_size);
+    all_elements_equal(&vec)
+}
 
-        match direction {
-            'L' => {
-                if position < new_position && position != 0 {
-                    clicks_on_zero += 1;
+fn process(input: &str, part2: bool) -> i64  {
+    input.trim().split(',').fold(0, |acc, pair| {
+        let (s, e) = pair.split_once('-').unwrap();
+        let n_start: i64 = s.parse().unwrap();
+        let n_end: i64 = e.parse().unwrap();
+
+        let mut count = 0;
+        for i in n_start..=n_end {
+            let s = i.to_string();
+
+            if part2 {
+                for x in (2..=s.len()).rev() {
+                    if check_repeats(&s, x) {
+                        count += i;
+                        break;
+                    }
+                }
+            } else {
+                let len = s.len();
+                if check_repeats(&s, 2) {
+                    count += i
                 }
             }
-            'R' => {
-                if position > new_position && new_position != 0 {
-                    clicks_on_zero += 1;
-                }
-            }
-            _ => panic!("Invalid direction"),
         }
 
-        position = new_position;
-        if position == 0 {
-            clicks_on_zero += 1;
-            lands_on_zero += 1;
-        }
-    });
-
-    if part2 { clicks_on_zero } else {  lands_on_zero }
+        acc + count
+    })
 }
 
 #[cfg(test)]
@@ -55,17 +68,13 @@ mod test {
 
     #[test]
     fn part1() {
-        let input = "11-22,95-115,998-1012,1188511880-1188511890,222220-222224,
-1698522-1698528,446443-446449,38593856-38593862,565653-565659,
-824824821-824824827,2121212118-2121212124";
-        assert_eq!(3, process(input, false));
+        let input = "11-22,95-115,998-1012,1188511880-1188511890,222220-222224,1698522-1698528,446443-446449,38593856-38593862,565653-565659,824824821-824824827,2121212118-2121212124";
+        assert_eq!(1227775554, process(input, false));
     }
 
     #[test]
     fn part2() {
-        let input = "11-22,95-115,998-1012,1188511880-1188511890,222220-222224,
-1698522-1698528,446443-446449,38593856-38593862,565653-565659,
-824824821-824824827,2121212118-2121212124";
-        assert_eq!(6, process(input, true));
+        let input = "11-22,95-115,998-1012,1188511880-1188511890,222220-222224,1698522-1698528,446443-446449,38593856-38593862,565653-565659,824824821-824824827,2121212118-2121212124";
+        assert_eq!(4174379265, process(input, true));
     }
 }
