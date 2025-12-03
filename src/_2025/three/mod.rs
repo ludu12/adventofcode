@@ -6,12 +6,42 @@ pub fn run() {
     println!("Part2: {}", part2.to_string());
 }
 
-fn process(input: &str, part2: bool) -> i64  {
+fn find_max_index(numbers: &Vec<u32>, left: usize, right: usize) -> usize {
+    let mut max = 0 + left;
 
-    
+    let start = 0 + left;
+    let end = numbers.len() - right;
 
-    357
+    for i in (start..end).rev() {
+        if numbers[i] > numbers[max] {
+            max = i
+        }
+    }
+    max
 }
+
+fn process(input: &str, part2: bool) -> u32  {
+
+    let mut count = 0;
+    input.lines().for_each(|line| {
+        let s = line.trim();
+
+        let numbers: Vec<u32> = s
+            .chars()
+            .filter_map(|c| c.to_digit(10))
+            .collect();
+
+        let first = find_max_index(&numbers, 0, 1);
+        let second = find_max_index(&numbers, first + 1, 0);
+
+        count += numbers[first] * 10 + numbers[second];
+
+    });
+
+    count
+}
+
+
 
 #[cfg(test)]
 mod test {

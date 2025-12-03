@@ -7,6 +7,7 @@ name = "adventofcode"
 version = "0.1.0"
 dependencies = [
  "itertools 0.12.1",
+ "log",
  "petgraph",
  "regex",
  "rustworkx-core",
@@ -179,6 +180,12 @@ name = "libc"
 version = "0.2.167"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "09d6582e104315a817dff97f75133544b2e094ee22447d2acf4a74e189ba06fc"
+
+[[package]]
+name = "log"
+version = "0.4.29"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5e5032e24019045c762d3c0f28f5b6b8bbf38563a65908389bf7978758920897"
 
 [[package]]
 name = "memchr"
