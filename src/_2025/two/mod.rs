@@ -44,7 +44,7 @@ fn process(input: &str, part2: bool) -> i64  {
             let s = i.to_string();
 
             if part2 {
-                for x in (2..=s.len()).rev() {
+                for x in 2..=s.len() {
                     if check_repeats(&s, x) {
                         count += i;
                         break;
