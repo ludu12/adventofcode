@@ -37,6 +37,32 @@ pub fn get_neighbor(x: usize, y: usize, dx: isize, dy: isize, width: usize, heig
 }
 
 #[allow(dead_code)]
+pub fn get_neighbors(g: &Vec<Vec<char>>, x: usize, y: usize, empty: char) -> Vec<char> {
+    let (width, height) = get_bounds(g);
+
+    let mut my_vec: Vec<char> = Vec::with_capacity(8);
+    for dx in -1isize..=1 {
+        for dy in -1isize..=1 {
+            if dx == 0 && dy == 0 {
+                continue;
+            }
+            match get_neighbor(x, y, dx, dy, width, height) {
+                None => { my_vec.push(empty) },
+                Some((nx, ny)) => { my_vec.push(g[nx][ny])}
+            }
+        }
+    }
+    my_vec
+}
+
+#[allow(dead_code)]
+pub fn print_neighbors(n: &Vec<char>) {
+    println!("{}{}{}", n[0], n[1], n[2]);
+    println!("{}x{}", n[3], n[4]);
+    println!("{}{}{}", n[5], n[6], n[7]);
+}
+
+#[allow(dead_code)]
 pub fn print_grid(grid: &Vec<Vec<char>>) {
     for row in grid {
         println!("{}", row.iter().collect::<String>())
