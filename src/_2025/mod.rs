@@ -3,6 +3,7 @@ pub mod one;
 pub mod two;
 pub mod three;
 pub mod four;
+pub mod five;
 
 pub fn run_day(day: u32) {
     match day {
@@ -10,6 +11,7 @@ pub fn run_day(day: u32) {
         2 => two::run(),
         3 => three::run(),
         4 => four::run(),
+        5 => five::run(),
         _ => println!("Invalid advent day! \"{}\"", day),
     }
 }
