@@ -15,6 +15,15 @@ pub fn transpose<T>(v: Vec<Vec<T>>) -> Vec<Vec<T>> {
         .collect()
 }
 
+#[allow(dead_code)]
+pub fn transpose_clone<T: Clone>(v: Vec<Vec<T>>) -> Vec<Vec<T>> {
+    assert!(!v.is_empty());
+    let num_cols = v[0].len();
+    (0..num_cols)
+        .map(|col| v.iter().map(|row| row[col].clone()).collect())
+        .collect()
+}
+
 pub fn grid(input: &str) -> Vec<Vec<char>> {
     input.lines().map(|l| l.chars().collect_vec()).collect_vec()
 }
