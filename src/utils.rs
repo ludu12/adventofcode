@@ -186,4 +186,18 @@ impl Position {
 
         Position { x: self.x + d_x as i32, y: self.y + d_y as i32, dir: d }
     }
+
+    #[allow(dead_code)]
+    pub fn grid_value<T: Clone>(&self, grid: &Vec<Vec<T>>) -> Option<T> {
+        let row = grid.get(self.y as usize);
+        if row.is_none() {
+            return None;
+        }
+        let column = row.unwrap().get(self.x as usize);
+        if column.is_none() {
+            return None;
+        }
+
+        Some(column.unwrap().clone())
+    }
 }
