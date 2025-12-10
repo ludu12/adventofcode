@@ -124,6 +124,7 @@ fn process_part1(input: &str) -> i64 {
     rects[0].area
 }
 
+#[allow(dead_code)]
 fn mutate_path(grid: &mut Vec<Vec<char>>, prev: Point, next: Point) {
     grid[prev.y as usize][prev.x as usize] = '#';
 
@@ -156,6 +157,7 @@ fn mutate_path(grid: &mut Vec<Vec<char>>, prev: Point, next: Point) {
     grid[next.y as usize][next.x as usize] = '#';
 }
 
+#[allow(dead_code)]
 fn flood_fill(grid: &mut Vec<Vec<char>>, start: Point) {
     let height = grid.len() as i64;
     let width = grid[0].len() as i64;
@@ -194,6 +196,7 @@ fn flood_fill(grid: &mut Vec<Vec<char>>, start: Point) {
 }
 
 // Fills the grid using a scanline algorithm, given sorted vertices.
+#[allow(dead_code)]
 fn scanline_fill(grid: &mut Vec<Vec<char>>, points: &[Point]) {
     let height = grid.len() as i64;
     let width = grid[0].len() as i64;
@@ -237,7 +240,7 @@ fn encloses(x: &(i64, i64), y: &(i64, i64), point: &Point) -> bool {
 }
 
 fn process_part2(input: &str) -> i64 {
-    let mut points = create_points(input);
+    let points = create_points(input);
     let rects = create_rectangles(&points);
 
     let mut edges = vec![];
