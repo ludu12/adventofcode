@@ -224,4 +224,33 @@ mod test {
 [.###.#] (0,1,2,3,4) (0,3,4) (0,1,2,4,5) (1,2) {10,11,11,5,10,5}";
         assert_eq!(33, process_part2(input));
     }
+
+    #[test]
+    fn z3() {
+        let opt = Optimize::new();
+
+        let x = Int::fresh_const("x");
+        let y = Int::fresh_const("y");
+        opt.assert(&x.ge(0));
+        opt.assert(&y.ge(0));
+
+        opt.assert(&Int::from_u64(1).ge(Int::add(&[&x * -1, y.clone()])));
+        opt.assert(&Int::from_u64(12).ge(Int::add(&[&x * 3, &y * 2])));
+        opt.assert(&Int::from_u64(12).ge(Int::add(&[&x * 2, &y * 3])));
+
+        opt.maximize(&y);
+
+        let result = match opt.check(&[]) {
+            SatResult::Sat => opt
+                .get_model()
+                .unwrap()
+                .eval(&y, true)
+                .and_then(|t| t.as_u64())
+                .unwrap() as usize,
+            _              => panic!("No solution found"),
+        };
+
+
+        println!("{:?}", result);
+    }
 }
