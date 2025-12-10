@@ -156,7 +156,7 @@ fn mutate_path(grid: &mut Vec<Vec<char>>, prev: Point, next: Point) {
     grid[next.y as usize][next.x as usize] = '#';
 }
 
-pub fn flood_fill(grid: &mut Vec<Vec<char>>, start: Point) {
+fn flood_fill(grid: &mut Vec<Vec<char>>, start: Point) {
     let height = grid.len() as i64;
     let width = grid[0].len() as i64;
 
@@ -193,28 +193,96 @@ pub fn flood_fill(grid: &mut Vec<Vec<char>>, start: Point) {
     }
 }
 
+// Fills the grid using a scanline algorithm, given sorted vertices.
+fn scanline_fill(grid: &mut Vec<Vec<char>>, points: &[Point]) {
+    let height = grid.len() as i64;
+    let width = grid[0].len() as i64;
+    let n = points.len();
+    for y in 0..height {
+        let mut xs = Vec::new();
+        for i in 0..n {
+            let p1 = points[i];
+            let p2 = points[(i + 1) % n];
+
+            // Check if edge crosses scanline y
+            if (p1.y <= y && p2.y > y) || (p2.y <= y && p1.y > y) {
+                // Compute intersection x
+                let dy = p2.y - p1.y;
+                if dy != 0 {
+                    let t = (y - p1.y) as f64 / dy as f64;
+                    let x = p1.x as f64 + t * (p2.x - p1.x) as f64;
+                    xs.push(x);
+                }
+            }
+        }
+        xs.sort_by(|a, b| a.partial_cmp(b).unwrap());
+        let mut i = 0;
+
+        println!("Process scanline {}/{}", y, height);
+        while i + 1 < xs.len() {
+            let x_start = xs[i].ceil() as i64;
+            let x_end = xs[i + 1].floor() as i64;
+            for x in x_start..=x_end {
+                if x >= 0 && x < width {
+                    grid[y as usize][x as usize] = 'X';
+                }
+            }
+            i += 2;
+        }
+    }
+}
+
+fn encloses(x: &(i64, i64), y: &(i64, i64), point: &Point) -> bool {
+    point.x > x.0 && point.x < x.1 && point.y > y.0 && point.y < y.1
+}
+
 fn process_part2(input: &str) -> i64 {
     let mut points = create_points(input);
-    points.push(points[0]);
+    let rects = create_rectangles(&points);
 
-    let max_x = points.iter().map(|p| p.x).max().unwrap();
-    let min_x = points.iter().map(|p| p.x).min().unwrap();
-    let max_y = points.iter().map(|p| p.y).max().unwrap();
-    let min_y = points.iter().map(|p| p.y).min().unwrap();
+    let mut edges = vec![];
+    for i in 0..points.len() - 1 {
+        edges.push((points[i], points[i+1]));
+    }
+    edges.push((points[points.len() - 1], points[0]));
 
-    for x in min_x..max_x {}
+    let mut area = 0;
+    for i in 0..rects.len() {
+        let rect = rects[i];
+        let x_min = rect.v1.x.min(rect.v2.x);
+        let x_max = rect.v1.x.max(rect.v2.x);
+        let y_min = rect.v1.y.min(rect.v2.y);
+        let y_max = rect.v1.y.max(rect.v2.y);
 
-    let padding = 2;
-    let mut grid = vec![vec!['.'; (max_x + padding) as usize]; (max_y + padding) as usize];
-    let mut prev = points[0];
-    for i in 1..points.len() {
-        mutate_path(&mut grid, prev, points[i]);
-        prev = points[i];
+        let found = edges.iter().all(|e| {
+            let (start, end) = e;
+
+            let midpoint = Point {
+                x: (start.x + end.x) / 2,
+                y: (start.y + end.y) / 2,
+            };
+
+            if encloses(&(x_min, x_max), &(y_min, y_max), &midpoint) {
+                return false;
+            }
+            if encloses(&(x_min, x_max), &(y_min, y_max), &start) {
+                return false;
+            }
+            if encloses(&(x_min, x_max), &(y_min, y_max), &end) {
+                return false;
+            }
+
+            true
+        });
+
+        if found {
+            println!("Found rectangle: {:?} with area {}", rect, rect.area);
+            area = rect.area;
+            break;
+        }
     }
 
-    print_grid(&grid);
-
-    50
+    area
 }
 
 #[cfg(test)]
@@ -244,6 +312,6 @@ mod test {
 2,5
 2,3
 7,3";
-        assert_eq!(50, process_part2(input));
+        assert_eq!(24, process_part2(input));
     }
 }
